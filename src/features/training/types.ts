@@ -14,6 +14,7 @@ export type TrainingSession = {
   qualification_score: number | null;
   desired_outcome_achieved: boolean | null;
   overall_result: "passed" | "failed" | null;
+  retell_call_id: string | null;
   created_at: string;
   updated_at: string;
 };

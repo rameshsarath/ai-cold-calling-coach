@@ -189,6 +189,7 @@ CREATE TABLE training_sessions (
   qualification_score INT,
   desired_outcome_achieved BOOLEAN,
   overall_result TEXT CHECK (overall_result IN ('passed', 'failed')),
+  retell_call_id TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
