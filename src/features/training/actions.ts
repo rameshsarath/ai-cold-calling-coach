@@ -26,6 +26,16 @@ export async function startSession(scenarioId: string) {
     redirect("/dashboard/employee");
   }
 
+  const { data: scenario } = await supabase
+    .from("scenarios")
+    .select("status")
+    .eq("id", scenarioId)
+    .single();
+
+  if (scenario?.status === "archived") {
+    redirect("/dashboard/employee");
+  }
+
   const scenarioProgress = await getScenarioProgress(user.id);
   const lockStatuses = getEmployeeScenarioStatuses(scenarioProgress);
   const currentLockInfo = lockStatuses.find((s) => s.scenario_id === scenarioId);

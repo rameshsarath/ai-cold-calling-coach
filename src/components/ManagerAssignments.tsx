@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { assignScenario, removeAssignment } from "@/features/assignments/actions";
@@ -16,12 +16,23 @@ type Props = {
 
 export function ManagerAssignments({ employees, scenarios, assignments }: Props) {
   const router = useRouter();
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
   const [state, action, pending] = useActionState(
     async (_prevState: unknown, formData: FormData) => {
       return await assignScenario(formData);
     },
     undefined
   );
+
+  const assignedScenarioIds = selectedEmployeeId
+    ? new Set(
+        assignments
+          .filter((a) => a.employee_id === selectedEmployeeId)
+          .map((a) => a.scenario_id)
+      )
+    : new Set();
+
+  const availableScenarios = scenarios.filter((s) => !assignedScenarioIds.has(s.id));
 
   async function handleRemove(id: string) {
     if (!confirm("Remove this assignment?")) return;
@@ -36,7 +47,14 @@ export function ManagerAssignments({ employees, scenarios, assignments }: Props)
 
         <div>
           <label htmlFor="employee_id" className="block text-sm font-medium">Employee</label>
-          <select id="employee_id" name="employee_id" required className="w-full border rounded px-3 py-2 text-sm">
+          <select
+            id="employee_id"
+            name="employee_id"
+            required
+            className="w-full border rounded px-3 py-2 text-sm"
+            value={selectedEmployeeId}
+            onChange={(e) => setSelectedEmployeeId(e.target.value)}
+          >
             <option value="">Select employee...</option>
             {employees.map((emp) => (
               <option key={emp.id} value={emp.id}>{emp.full_name}</option>
@@ -48,7 +66,7 @@ export function ManagerAssignments({ employees, scenarios, assignments }: Props)
           <label htmlFor="scenario_id" className="block text-sm font-medium">Scenario</label>
           <select id="scenario_id" name="scenario_id" required className="w-full border rounded px-3 py-2 text-sm">
             <option value="">Select scenario...</option>
-            {scenarios.map((s) => (
+            {availableScenarios.map((s) => (
               <option key={s.id} value={s.id}>{s.title}</option>
             ))}
           </select>
@@ -66,7 +84,7 @@ export function ManagerAssignments({ employees, scenarios, assignments }: Props)
       {assignments.length === 0 ? (
         <p className="text-gray-500 text-sm py-4">No assignments yet. Assign a scenario above.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b text-left text-gray-500">
@@ -89,7 +107,12 @@ export function ManagerAssignments({ employees, scenarios, assignments }: Props)
                       {a.employees?.full_name ?? "—"}
                     </Link>
                   </td>
-                  <td className="py-2">{a.scenarios?.title ?? "—"}</td>
+                  <td className="py-2">
+                    {a.scenarios?.title ?? "—"}
+                    {a.scenarios?.status === "archived" && (
+                      <span className="ml-2 text-xs text-red-500 font-medium">Archived</span>
+                    )}
+                  </td>
                   <td className="py-2">
                     {a.is_completed ? (
                       <span className="text-green-600">Completed</span>

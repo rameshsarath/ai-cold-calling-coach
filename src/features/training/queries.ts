@@ -124,8 +124,9 @@ export async function getScenarioProgress(employeeId: string): Promise<ScenarioP
 
   const { data: assignments } = await supabase
     .from("assignments")
-    .select("scenario_id, scenarios(title)")
-    .eq("employee_id", employeeId);
+    .select("scenario_id, scenarios!inner(title, status)")
+    .eq("employee_id", employeeId)
+    .neq("scenarios.status", "archived");
 
   if (!assignments || assignments.length === 0) {
     return [];
@@ -133,7 +134,7 @@ export async function getScenarioProgress(employeeId: string): Promise<ScenarioP
 
   const scenarioPassCounts: Record<string, { passes: number; attempts: number }> = {};
 
-  for (const a of assignments as any[]) {
+  for (const a of assignments) {
     scenarioPassCounts[a.scenario_id] = { passes: 0, attempts: 0 };
   }
 
@@ -146,7 +147,7 @@ export async function getScenarioProgress(employeeId: string): Promise<ScenarioP
     }
   }
 
-  return (assignments as any[]).map((a: any) => {
+  return assignments.map((a: any) => {
     const stats = scenarioPassCounts[a.scenario_id] ?? { passes: 0, attempts: 0 };
     let status: "pending" | "ready" | "mastered" = "pending";
     if (stats.passes >= 5) {

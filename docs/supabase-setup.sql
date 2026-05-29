@@ -160,6 +160,16 @@ USING (
   employee_id = auth.uid()
 );
 
+-- 19. Clean up duplicate assignments before adding unique constraint
+DELETE FROM assignments a
+USING assignments b
+WHERE a.employee_id = b.employee_id
+  AND a.scenario_id = b.scenario_id
+  AND a.id > b.id;
+
+-- 20. Prevent duplicate employee+scenario assignments
+ALTER TABLE assignments ADD CONSTRAINT unique_employee_scenario UNIQUE (employee_id, scenario_id);
+
 -- ============================================
 -- TRAINING SESSIONS TABLE
 -- ============================================

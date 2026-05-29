@@ -26,6 +26,28 @@ export async function assignScenario(formData: FormData) {
     return { success: false, error: { message: "Both employee and scenario are required." } };
   }
 
+  const { data: existing } = await supabase
+    .from("assignments")
+    .select("id")
+    .eq("employee_id", employeeId)
+    .eq("scenario_id", scenarioId)
+    .eq("company_id", companyId)
+    .maybeSingle();
+
+  if (existing) {
+    return { success: false, error: { message: "This scenario is already assigned to this employee." } };
+  }
+
+  const { data: scenario } = await supabase
+    .from("scenarios")
+    .select("status")
+    .eq("id", scenarioId)
+    .single();
+
+  if (!scenario || scenario.status === "archived") {
+    return { success: false, error: { message: "This scenario has been archived and cannot be assigned." } };
+  }
+
   const { error } = await supabase.from("assignments").insert({
     employee_id: employeeId,
     scenario_id: scenarioId,
