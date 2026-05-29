@@ -44,6 +44,32 @@ export function ScenarioForm({ onCancel }: Props) {
         </div>
       </div>
 
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label htmlFor="prospect_name" className="block text-sm font-medium">Prospect Name</label>
+          <input id="prospect_name" name="prospect_name" type="text" className="w-full border rounded px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label htmlFor="company_name" className="block text-sm font-medium">Company Name</label>
+          <input id="company_name" name="company_name" type="text" className="w-full border rounded px-3 py-2 text-sm" />
+        </div>
+      </div>
+
+      <div>
+        <label htmlFor="prospect_personality" className="block text-sm font-medium">Prospect Personality</label>
+        <select id="prospect_personality" name="prospect_personality" className="w-full border rounded px-3 py-2 text-sm">
+          <option value="">Select personality...</option>
+          <option value="Friendly">Friendly</option>
+          <option value="Busy">Busy</option>
+          <option value="Skeptical">Skeptical</option>
+          <option value="Aggressive">Aggressive</option>
+          <option value="Technical">Technical</option>
+          <option value="Gatekeeper">Gatekeeper</option>
+          <option value="Decision Maker">Decision Maker</option>
+          <option value="Curious">Curious</option>
+        </select>
+      </div>
+
       <div>
         <label htmlFor="pain_points" className="block text-sm font-medium">Pain Points</label>
         <textarea id="pain_points" name="pain_points" rows={2} className="w-full border rounded px-3 py-2 text-sm" />

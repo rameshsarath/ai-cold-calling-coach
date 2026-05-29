@@ -16,6 +16,50 @@ export default async function ManagerScenarioTestPage({ params }: Props) {
 
   return (
     <div>
+      <div className="max-w-xl mx-auto mb-6">
+        <h1 className="text-2xl font-bold mb-2">{scenario.title}</h1>
+
+        {scenario.description && (
+          <p className="text-gray-600 mb-4">{scenario.description}</p>
+        )}
+
+        <div className="border rounded p-4 bg-white">
+          <h2 className="font-semibold mb-3 text-sm text-gray-500 uppercase tracking-wide">Prospect Info</h2>
+          <dl className="grid grid-cols-2 gap-3 text-sm">
+            {scenario.prospect_name && (
+              <>
+                <dt className="text-gray-500">Name</dt>
+                <dd>{scenario.prospect_name}</dd>
+              </>
+            )}
+            {scenario.company_name && (
+              <>
+                <dt className="text-gray-500">Company</dt>
+                <dd>{scenario.company_name}</dd>
+              </>
+            )}
+            {scenario.prospect_personality && (
+              <>
+                <dt className="text-gray-500">Personality</dt>
+                <dd>{scenario.prospect_personality}</dd>
+              </>
+            )}
+            {scenario.prospect_role && (
+              <>
+                <dt className="text-gray-500">Role</dt>
+                <dd>{scenario.prospect_role}</dd>
+              </>
+            )}
+            {scenario.industry && (
+              <>
+                <dt className="text-gray-500">Industry</dt>
+                <dd>{scenario.industry}</dd>
+              </>
+            )}
+          </dl>
+        </div>
+      </div>
+
       <SimulationClient
         sessionId="sandbox"
         scenarioTitle={scenario.title}

@@ -40,6 +40,7 @@ export function ScenarioTable({ scenarios, onEdit }: Props) {
         <thead>
           <tr className="border-b text-left text-gray-500">
             <th className="pb-2 font-medium">Title</th>
+            <th className="pb-2 font-medium">Prospect</th>
             <th className="pb-2 font-medium">Industry</th>
             <th className="pb-2 font-medium">Difficulty</th>
             <th className="pb-2 font-medium">Time</th>
@@ -51,6 +52,7 @@ export function ScenarioTable({ scenarios, onEdit }: Props) {
           {scenarios.map((s) => (
             <tr key={s.id} className="border-b last:border-0">
               <td className="py-2 font-medium">{s.title}</td>
+              <td className="py-2 text-xs">{s.prospect_name ?? s.prospect_role ?? "—"}</td>
               <td className="py-2">{s.industry ?? "—"}</td>
               <td className="py-2 capitalize">{s.difficulty ?? "—"}</td>
               <td className="py-2">{s.time_limit ? `${s.time_limit}m` : "—"}</td>

@@ -56,6 +56,24 @@ export default async function ScenarioBriefingPage({ params }: Props) {
         <div className="border rounded p-4 bg-white">
           <h2 className="font-semibold mb-3 text-sm text-gray-500 uppercase tracking-wide">Scenario Details</h2>
           <dl className="grid grid-cols-2 gap-3 text-sm">
+            {scenario.prospect_name && (
+              <>
+                <dt className="text-gray-500">Prospect Name</dt>
+                <dd>{scenario.prospect_name}</dd>
+              </>
+            )}
+            {scenario.company_name && (
+              <>
+                <dt className="text-gray-500">Company</dt>
+                <dd>{scenario.company_name}</dd>
+              </>
+            )}
+            {scenario.prospect_personality && (
+              <>
+                <dt className="text-gray-500">Personality</dt>
+                <dd>{scenario.prospect_personality}</dd>
+              </>
+            )}
             {scenario.industry && (
               <>
                 <dt className="text-gray-500">Industry</dt>

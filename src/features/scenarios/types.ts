@@ -7,6 +7,9 @@ export type Scenario = {
   description: string | null;
   industry: string | null;
   prospect_role: string | null;
+  prospect_name: string | null;
+  company_name: string | null;
+  prospect_personality: string | null;
   pain_points: string | null;
   common_objections: string | null;
   desired_outcome: string | null;
@@ -22,6 +25,9 @@ export type ScenarioFormData = {
   description: string;
   industry: string;
   prospect_role: string;
+  prospect_name: string;
+  company_name: string;
+  prospect_personality: string;
   pain_points: string;
   common_objections: string;
   desired_outcome: string;
