@@ -2,6 +2,65 @@
 
 import { createClient } from "@/lib/supabase/server";
 
+export type RetellCallDetails = {
+  transcript: string | null;
+  duration_ms: number | null;
+  recording_url: string | null;
+  disconnection_reason: string | null;
+  call_summary: string | null;
+  user_sentiment: string | null;
+  call_successful: boolean | null;
+  end_timestamp: number | null;
+};
+
+export async function endRetellCall(callId: string) {
+  const response = await fetch(
+    `https://api.retellai.com/v2/stop-call/${callId}`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.RETELL_API_KEY}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Retell API error (${response.status}): ${body}`);
+  }
+}
+
+export async function fetchRetellCallDetails(
+  callId: string
+): Promise<RetellCallDetails> {
+  const response = await fetch(
+    `https://api.retellai.com/v2/get-call/${callId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${process.env.RETELL_API_KEY}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Retell API error (${response.status}): ${body}`);
+  }
+
+  const data = await response.json();
+
+  return {
+    transcript: data.transcript ?? null,
+    duration_ms: data.duration_ms ?? null,
+    recording_url: data.recording_url ?? null,
+    disconnection_reason: data.disconnection_reason ?? null,
+    call_summary: data.call_analysis?.call_summary ?? null,
+    user_sentiment: data.call_analysis?.user_sentiment ?? null,
+    call_successful: data.call_analysis?.call_successful ?? null,
+    end_timestamp: data.end_timestamp ?? null,
+  };
+}
+
 export async function createRetellCall(sessionId: string) {
   const supabase = await createClient();
 

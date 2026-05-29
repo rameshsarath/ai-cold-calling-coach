@@ -15,6 +15,14 @@ export type TrainingSession = {
   desired_outcome_achieved: boolean | null;
   overall_result: "passed" | "failed" | null;
   retell_call_id: string | null;
+  transcript: string | null;
+  call_duration_ms: number | null;
+  call_summary: string | null;
+  user_sentiment: string | null;
+  call_successful: boolean | null;
+  recording_url: string | null;
+  disconnection_reason: string | null;
+  call_ended_at: string | null;
   created_at: string;
   updated_at: string;
 };

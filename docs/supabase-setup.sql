@@ -190,6 +190,14 @@ CREATE TABLE training_sessions (
   desired_outcome_achieved BOOLEAN,
   overall_result TEXT CHECK (overall_result IN ('passed', 'failed')),
   retell_call_id TEXT,
+  transcript TEXT,
+  call_duration_ms INT,
+  call_summary TEXT,
+  user_sentiment TEXT,
+  call_successful BOOLEAN,
+  recording_url TEXT,
+  disconnection_reason TEXT,
+  call_ended_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -228,3 +236,17 @@ FOR SELECT
 USING (
   company_id = (auth.jwt() -> 'user_metadata' ->> 'company_id')::uuid
 );
+
+-- ============================================
+-- MIGRATION: Add Retell call metadata columns
+-- ============================================
+
+ALTER TABLE training_sessions
+  ADD COLUMN IF NOT EXISTS transcript TEXT,
+  ADD COLUMN IF NOT EXISTS call_duration_ms INT,
+  ADD COLUMN IF NOT EXISTS call_summary TEXT,
+  ADD COLUMN IF NOT EXISTS user_sentiment TEXT,
+  ADD COLUMN IF NOT EXISTS call_successful BOOLEAN,
+  ADD COLUMN IF NOT EXISTS recording_url TEXT,
+  ADD COLUMN IF NOT EXISTS disconnection_reason TEXT,
+  ADD COLUMN IF NOT EXISTS call_ended_at TIMESTAMPTZ;
