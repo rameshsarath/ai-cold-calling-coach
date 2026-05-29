@@ -23,6 +23,10 @@ export type TrainingSession = {
   recording_url: string | null;
   disconnection_reason: string | null;
   call_ended_at: string | null;
+  overall_score: number | null;
+  strengths: string | null;
+  weaknesses: string | null;
+  coaching_feedback: string | null;
   created_at: string;
   updated_at: string;
 };

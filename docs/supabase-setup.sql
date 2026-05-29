@@ -198,6 +198,10 @@ CREATE TABLE training_sessions (
   recording_url TEXT,
   disconnection_reason TEXT,
   call_ended_at TIMESTAMPTZ,
+  overall_score INT,
+  strengths TEXT,
+  weaknesses TEXT,
+  coaching_feedback TEXT,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -249,4 +253,8 @@ ALTER TABLE training_sessions
   ADD COLUMN IF NOT EXISTS call_successful BOOLEAN,
   ADD COLUMN IF NOT EXISTS recording_url TEXT,
   ADD COLUMN IF NOT EXISTS disconnection_reason TEXT,
-  ADD COLUMN IF NOT EXISTS call_ended_at TIMESTAMPTZ;
+  ADD COLUMN IF NOT EXISTS call_ended_at TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS overall_score INT,
+  ADD COLUMN IF NOT EXISTS strengths TEXT,
+  ADD COLUMN IF NOT EXISTS weaknesses TEXT,
+  ADD COLUMN IF NOT EXISTS coaching_feedback TEXT;
