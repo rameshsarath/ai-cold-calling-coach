@@ -14,9 +14,9 @@ export default async function ManagerLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
-      <DashboardSidebar />
-      <main className="flex-1 p-6 bg-gray-50">{children}</main>
+    <div className="flex h-screen">
+      <DashboardSidebar role="manager" />
+      <main className="flex-1 p-6 bg-gray-50 overflow-y-auto">{children}</main>
     </div>
   );
 }

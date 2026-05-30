@@ -80,7 +80,7 @@ export function EmployeeDashboardContent({ assignments, progress, readiness, sce
         </span>
       </div>
 
-      <div className="border rounded p-4 bg-white">
+      <div id="assigned-scenarios" className="border rounded p-4 bg-white">
         <h2 className="font-semibold mb-3">Assigned Scenarios</h2>
         {assignments.length === 0 ? (
           <p className="text-sm text-gray-500">
@@ -177,7 +177,7 @@ export function EmployeeDashboardContent({ assignments, progress, readiness, sce
         employeeName={employeeName}
       />
 
-      <div className="border rounded p-4 bg-white">
+      <div id="your-progress" className="border rounded p-4 bg-white">
         <h2 className="font-semibold mb-3">Your Progress</h2>
         {progress.total_completed === 0 ? (
           <p className="text-sm text-gray-500">

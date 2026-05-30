@@ -37,7 +37,7 @@ export function EmployeeSessionHistory({ items, summaries, sessions, employeeNam
 
   return (
     <div className="space-y-6">
-      <div className="border rounded p-4 bg-white">
+      <div id="session-history" className="border rounded p-4 bg-white">
         <h2 className="font-semibold mb-3">Session History</h2>
 
         <div className="max-h-[400px] overflow-y-auto space-y-3 pr-1">
@@ -116,7 +116,7 @@ export function EmployeeSessionHistory({ items, summaries, sessions, employeeNam
       </div>
 
       {summaries.length > 0 && (
-        <div className="border rounded p-4 bg-white">
+        <div id="attempt-summary" className="border rounded p-4 bg-white">
           <h2 className="font-semibold mb-3">Attempt Summary by Scenario</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
