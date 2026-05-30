@@ -42,8 +42,10 @@ export default async function EmployeeDashboardPage() {
         progress={progress}
         readiness={readiness}
         scenarioLockStatuses={scenarioLockStatuses}
+        sessions={completedSessions}
         sessionHistory={sessionHistory}
         sessionSummaries={sessionSummaries}
+        employeeName={fullName || "Employee"}
       />
     </div>
   );

@@ -37,7 +37,7 @@ export async function getMyCompletedSessions(employeeId?: string) {
 
   const { data } = await supabase
     .from("training_sessions")
-    .select("*, scenarios(title)")
+    .select("*, scenarios(title, prospect_name, prospect_role, prospect_personality)")
     .eq("employee_id", id)
     .eq("status", "completed")
     .order("ended_at", { ascending: false });

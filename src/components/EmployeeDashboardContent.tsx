@@ -11,8 +11,10 @@ type Props = {
   progress: ProgressMetrics;
   readiness: ReadinessInfo;
   scenarioLockStatuses: ScenarioLockInfo[];
+  sessions: any[];
   sessionHistory: SessionHistoryItem[];
   sessionSummaries: ScenarioAttemptSummary[];
+  employeeName: string;
 };
 
 const stageBadgeColors: Record<string, string> = {
@@ -38,7 +40,7 @@ const employeeStatusLabels: Record<string, string> = {
 
 const stageMilestones = ["Beginner", "In Training", "Ready For Outbound", "Mastered"];
 
-export function EmployeeDashboardContent({ assignments, progress, readiness, scenarioLockStatuses, sessionHistory, sessionSummaries }: Props) {
+export function EmployeeDashboardContent({ assignments, progress, readiness, scenarioLockStatuses, sessions, sessionHistory, sessionSummaries, employeeName }: Props) {
   const currentStageIndex = stageMilestones.indexOf(readiness.stage);
 
   return (
@@ -171,6 +173,8 @@ export function EmployeeDashboardContent({ assignments, progress, readiness, sce
       <EmployeeSessionHistory
         items={sessionHistory}
         summaries={sessionSummaries}
+        sessions={sessions}
+        employeeName={employeeName}
       />
 
       <div className="border rounded p-4 bg-white">

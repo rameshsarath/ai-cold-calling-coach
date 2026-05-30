@@ -1,18 +1,15 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import type { SessionHistoryItem, ScenarioAttemptSummary } from "@/features/training/session-history";
+import SessionReview from "./SessionReview";
 
 type Props = {
   items: SessionHistoryItem[];
   summaries: ScenarioAttemptSummary[];
+  sessions: any[];
+  employeeName: string;
 };
-
-function TrendArrow({ trend }: { trend: SessionHistoryItem["trend"] }) {
-  if (trend === "up") return <span className="text-green-600 text-xs ml-1">&#8593;</span>;
-  if (trend === "down") return <span className="text-red-600 text-xs ml-1">&#8595;</span>;
-  if (trend === "same") return <span className="text-gray-400 text-xs ml-1">&#8594;</span>;
-  return null;
-}
 
 function formatDuration(seconds: number | null): string {
   if (seconds === null) return "—";
@@ -21,7 +18,21 @@ function formatDuration(seconds: number | null): string {
   return `${m}m ${s}s`;
 }
 
-export function EmployeeSessionHistory({ items, summaries }: Props) {
+export function EmployeeSessionHistory({ items, summaries, sessions, employeeName }: Props) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const sessionMap = useMemo(() => {
+    const map = new Map<string, any>();
+    for (const s of sessions ?? []) {
+      map.set(s.id, s);
+    }
+    return map;
+  }, [sessions]);
+
+  const toggleExpand = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  };
+
   if (items.length === 0) return null;
 
   return (
@@ -30,82 +41,77 @@ export function EmployeeSessionHistory({ items, summaries }: Props) {
         <h2 className="font-semibold mb-3">Session History</h2>
 
         <div className="max-h-[400px] overflow-y-auto space-y-3 pr-1">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="border rounded p-3 bg-white text-sm"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <div className="font-medium">
-                  {item.scenarioTitle}
-                  <TrendArrow trend={item.trend} />
-                </div>
-                <div className="flex items-center gap-2">
-                  {item.overallResult === "passed" ? (
-                    <span className="text-green-600 bg-green-50 border border-green-200 rounded px-2 py-0.5 text-xs font-medium">
-                      Passed
+          {items.map((item) => {
+            const isExpanded = expandedId === item.id;
+            const raw = isExpanded ? sessionMap.get(item.id) : null;
+
+            return (
+              <div key={item.id}>
+                <div
+                  className={`border rounded p-3 bg-white text-sm cursor-pointer hover:shadow transition ${
+                    isExpanded ? "border-blue-200" : ""
+                  }`}
+                  onClick={() => toggleExpand(item.id)}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="font-medium truncate max-w-[220px]" title={item.scenarioTitle}>
+                      {item.scenarioTitle}
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-xs text-gray-500">
+                        {raw?.overall_score != null ? `Score: ${raw.overall_score}/100` : "—"}
+                      </span>
+                      {item.overallResult === "passed" ? (
+                        <span className="text-green-600 bg-green-50 border border-green-200 rounded px-2 py-0.5 text-xs font-medium">
+                          Passed
+                        </span>
+                      ) : item.overallResult === "failed" ? (
+                        <span className="text-red-600 bg-red-50 border border-red-200 rounded px-2 py-0.5 text-xs font-medium">
+                          Failed
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-500">
+                    <span>
+                      Date:{" "}
+                      {item.completedAt
+                        ? new Date(item.completedAt).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "—"}
                     </span>
-                  ) : item.overallResult === "failed" ? (
-                    <span className="text-red-600 bg-red-50 border border-red-200 rounded px-2 py-0.5 text-xs font-medium">
-                      Failed
-                    </span>
-                  ) : null}
-                </div>
-              </div>
+                    <span>Duration: {formatDuration(item.durationSeconds)}</span>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-gray-500 mb-2">
-                <span>
-                  Date:{" "}
-                  {item.completedAt
-                    ? new Date(item.completedAt).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : "—"}
-                </span>
-                <span>Duration: {formatDuration(item.durationSeconds)}</span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-                <div className="flex items-center">
-                  <span className="text-gray-400 w-28">Confidence</span>
-                  <span className="font-medium">{item.confidence ?? "—"}/100</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-gray-400 w-28">Objection Handling</span>
-                  <span className="font-medium">{item.objectionHandling ?? "—"}/100</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-gray-400 w-28">Active Listening</span>
-                  <span className="font-medium">{item.activeListening ?? "—"}/100</span>
-                </div>
-                <div className="flex items-center">
-                  <span className="text-gray-400 w-28">Qualification</span>
-                  <span className="font-medium">{item.qualification ?? "—"}/100</span>
-                </div>
-              </div>
-
-              <div className="mt-2 pt-2 border-t border-gray-100 flex items-center justify-between">
-                <div className="text-xs">
-                  <span className="text-gray-400">Outcome: </span>
-                  <span
-                    className={
-                      item.desiredOutcomeAchieved
-                        ? "text-green-600 font-medium"
-                        : "text-gray-500"
-                    }
-                  >
-                    {item.desiredOutcomeAchieved ? "Achieved" : "Not Achieved"}
-                  </span>
+                  <div className="mt-2 pt-2 border-t border-gray-100 flex justify-end">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleExpand(item.id);
+                      }}
+                      className="text-blue-600 hover:text-blue-800 text-xs font-medium"
+                    >
+                      {isExpanded ? "Collapse" : "Review"}
+                    </button>
+                  </div>
                 </div>
 
-                {/* Future: audio playback, transcript, AI feedback buttons go here */}
-                <div className="flex gap-2" />
+                {raw && isExpanded && (
+                  <div className="border rounded-lg p-4 mt-2 bg-gray-50">
+                    <SessionReview
+                      session={raw}
+                      employeeName={employeeName}
+                    />
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
