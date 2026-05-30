@@ -138,6 +138,11 @@ export async function endSession(sessionId: string) {
           callSummary: retellMetadata.call_summary ?? "",
         });
 
+        const codeOverallResult =
+          result.overall_score >= 70 && result.desired_outcome_achieved
+            ? "passed"
+            : "failed";
+
         evaluationData = {
           overall_score: result.overall_score,
           confidence_score: result.confidence_score,
@@ -145,7 +150,7 @@ export async function endSession(sessionId: string) {
           active_listening_score: result.active_listening_score,
           qualification_score: result.qualification_score,
           desired_outcome_achieved: result.desired_outcome_achieved,
-          overall_result: result.overall_result,
+          overall_result: codeOverallResult,
           strengths: result.strengths,
           weaknesses: result.weaknesses,
           coaching_feedback: result.coaching_feedback,
@@ -190,11 +195,15 @@ export async function endSession(sessionId: string) {
   revalidatePath("/dashboard/employee");
   return {
     success: true,
+    overall_score: evaluationData.overall_score ?? null,
     confidence_score: evaluationData.confidence_score,
     objection_handling_score: evaluationData.objection_handling_score,
     active_listening_score: evaluationData.active_listening_score,
     qualification_score: evaluationData.qualification_score,
     desired_outcome_achieved: evaluationData.desired_outcome_achieved,
     overall_result: evaluationData.overall_result,
+    strengths: evaluationData.strengths ?? null,
+    weaknesses: evaluationData.weaknesses ?? null,
+    coaching_feedback: evaluationData.coaching_feedback ?? null,
   };
 }

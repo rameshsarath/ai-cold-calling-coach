@@ -11,12 +11,16 @@ function randomScore(min: number, max: number): number {
 
 type EvalData = {
   status: string;
+  overall_score: number | null;
   confidence_score: number | null;
   objection_handling_score: number | null;
   active_listening_score: number | null;
   qualification_score: number | null;
   desired_outcome_achieved: boolean | null;
   overall_result: "passed" | "failed" | null;
+  strengths: string | null;
+  weaknesses: string | null;
+  coaching_feedback: string | null;
 };
 
 type Props = {
@@ -75,12 +79,16 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
 
       setEvaluation({
         status: "completed",
+        overall_score: null,
         confidence_score: confidenceScore,
         objection_handling_score: objectionHandlingScore,
         active_listening_score: activeListeningScore,
         qualification_score: qualificationScore,
         desired_outcome_achieved: desiredOutcomeAchieved,
         overall_result: overallResult,
+        strengths: null,
+        weaknesses: null,
+        coaching_feedback: null,
       });
       setPhase("evaluation");
       return;
@@ -91,12 +99,16 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
       if (result.success) {
         setEvaluation({
           status: "completed",
+          overall_score: result.overall_score ?? null,
           confidence_score: result.confidence_score ?? 0,
           objection_handling_score: result.objection_handling_score ?? 0,
           active_listening_score: result.active_listening_score ?? 0,
           qualification_score: result.qualification_score ?? 0,
           desired_outcome_achieved: result.desired_outcome_achieved ?? false,
           overall_result: (result.overall_result ?? "failed") as "passed" | "failed",
+          strengths: result.strengths ?? null,
+          weaknesses: result.weaknesses ?? null,
+          coaching_feedback: result.coaching_feedback ?? null,
         });
         setPhase("evaluation");
       } else {
@@ -182,6 +194,26 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
     const s = seconds % 60;
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
+
+  function ScoreBar({ label, score }: { label: string; score: number | null }) {
+    const pct = score !== null ? score : 0;
+    const color =
+      pct >= 70 ? "bg-green-500" : pct >= 50 ? "bg-yellow-500" : "bg-red-500";
+    return (
+      <div>
+        <div className="flex justify-between text-sm mb-1">
+          <span className="text-gray-700">{label}</span>
+          <span className="font-semibold">{score !== null ? `${score}/100` : "—"}</span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div
+            className={`${color} h-2 rounded-full transition-all`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (phase === "active") {
     if (sandbox) {
@@ -338,7 +370,7 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
   }
 
   return (
-    <div className="max-w-xl mx-auto">
+    <div className="max-w-2xl mx-auto">
       {sandbox && (
         <div className="text-center mb-6">
           <span className="inline-block rounded px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-700">
@@ -350,39 +382,85 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
       <h1 className="text-2xl font-bold mb-2 text-center">Simulation Complete</h1>
       <p className="text-gray-500 text-center mb-8">{scenarioTitle}</p>
 
-      <div className="border rounded p-6 bg-white mb-6">
-        <h2 className="font-semibold mb-4 text-sm text-gray-500 uppercase tracking-wide">Performance Scores</h2>
-        <dl className="space-y-3">
-          <div className="flex justify-between text-sm">
-            <dt>Confidence</dt>
-            <dd className="font-semibold">{evaluation.confidence_score}/100</dd>
-          </div>
-          <div className="flex justify-between text-sm">
-            <dt>Objection Handling</dt>
-            <dd className="font-semibold">{evaluation.objection_handling_score}/100</dd>
-          </div>
-          <div className="flex justify-between text-sm">
-            <dt>Active Listening</dt>
-            <dd className="font-semibold">{evaluation.active_listening_score}/100</dd>
-          </div>
-          <div className="flex justify-between text-sm">
-            <dt>Qualification</dt>
-            <dd className="font-semibold">{evaluation.qualification_score}/100</dd>
-          </div>
-          <div className="flex justify-between text-sm border-t pt-3">
-            <dt>Desired Outcome Achieved</dt>
-            <dd className={evaluation.desired_outcome_achieved ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
-              {evaluation.desired_outcome_achieved ? "Yes" : "No"}
-            </dd>
-          </div>
-        </dl>
-      </div>
-
-      <div className={`border rounded p-6 mb-8 text-center ${evaluation.overall_result === "passed" ? "bg-green-50 border-green-200" : "bg-red-50 border-red-200"}`}>
-        <p className={`text-2xl font-bold ${evaluation.overall_result === "passed" ? "text-green-700" : "text-red-700"}`}>
+      {/* Section A — Overall Result */}
+      <div className={`border-2 rounded-xl p-6 mb-6 text-center ${
+        evaluation.overall_result === "passed"
+          ? "bg-green-50 border-green-300"
+          : "bg-red-50 border-red-300"
+      }`}>
+        <p className={`text-3xl font-bold mb-2 ${
+          evaluation.overall_result === "passed" ? "text-green-700" : "text-red-700"
+        }`}>
           {evaluation.overall_result === "passed" ? "PASSED" : "FAILED"}
         </p>
+        <div className="flex justify-center gap-8 mt-4">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-800">
+              {evaluation.overall_score !== null ? `${evaluation.overall_score}/100` : "—"}
+            </p>
+            <p className="text-xs text-gray-500 uppercase tracking-wide mt-1">Overall Score</p>
+          </div>
+          <div className="text-center">
+            <p className={`text-2xl font-bold ${
+              evaluation.desired_outcome_achieved ? "text-green-600" : "text-red-600"
+            }`}>
+              {evaluation.desired_outcome_achieved ? "Yes" : "No"}
+            </p>
+            <p className="text-xs text-gray-500 uppercase tracking-wide mt-1">Outcome Achieved</p>
+          </div>
+        </div>
       </div>
+
+      {/* Section B — Score Breakdown */}
+      <div className="border rounded-xl p-6 bg-white mb-6">
+        <h2 className="font-semibold mb-4 text-sm text-gray-500 uppercase tracking-wide">Score Breakdown</h2>
+        <div className="space-y-4">
+          <ScoreBar label="Confidence" score={evaluation.confidence_score} />
+          <ScoreBar label="Objection Handling" score={evaluation.objection_handling_score} />
+          <ScoreBar label="Active Listening" score={evaluation.active_listening_score} />
+          <ScoreBar label="Qualification" score={evaluation.qualification_score} />
+        </div>
+      </div>
+
+      {/* Section C — Strengths */}
+      {evaluation.strengths && (
+        <div className="border rounded-xl p-6 bg-green-50 border-green-200 mb-6">
+          <h2 className="font-semibold mb-3 text-sm text-green-800 uppercase tracking-wide">Strengths</h2>
+          <p className="text-sm text-green-900 whitespace-pre-line">
+            {evaluation.strengths.split("\n").map((line, i) => (
+              <span key={i} className="block mb-1">
+                <span className="text-green-600 mr-2">✓</span>
+                {line}
+              </span>
+            ))}
+          </p>
+        </div>
+      )}
+
+      {/* Section D — Improvement Areas */}
+      {evaluation.weaknesses && (
+        <div className="border rounded-xl p-6 bg-amber-50 border-amber-200 mb-6">
+          <h2 className="font-semibold mb-3 text-sm text-amber-800 uppercase tracking-wide">Improvement Areas</h2>
+          <p className="text-sm text-amber-900 whitespace-pre-line">
+            {evaluation.weaknesses.split("\n").map((line, i) => (
+              <span key={i} className="block mb-1">
+                <span className="text-amber-600 mr-2">•</span>
+                {line}
+              </span>
+            ))}
+          </p>
+        </div>
+      )}
+
+      {/* Section E — Coaching Feedback */}
+      {evaluation.coaching_feedback && (
+        <div className="border rounded-xl p-6 bg-blue-50 border-blue-200 mb-8">
+          <h2 className="font-semibold mb-3 text-sm text-blue-800 uppercase tracking-wide">Coaching Feedback</h2>
+          <p className="text-sm text-blue-900 leading-relaxed whitespace-pre-line">
+            {evaluation.coaching_feedback}
+          </p>
+        </div>
+      )}
 
       <div className="text-center">
         <button

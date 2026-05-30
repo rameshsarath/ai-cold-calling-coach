@@ -66,12 +66,16 @@ export default async function ManagerScenarioTestPage({ params }: Props) {
         scenarioTimeLimit={scenario.time_limit ?? 10}
         initialData={{
           status: "active",
+          overall_score: null,
           confidence_score: null,
           objection_handling_score: null,
           active_listening_score: null,
           qualification_score: null,
           desired_outcome_achieved: null,
           overall_result: null,
+          strengths: null,
+          weaknesses: null,
+          coaching_feedback: null,
         }}
         sandbox
       />

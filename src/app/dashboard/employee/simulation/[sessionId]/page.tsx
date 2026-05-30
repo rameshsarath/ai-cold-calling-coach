@@ -36,12 +36,16 @@ export default async function SimulationPage({ params }: Props) {
       scenarioTimeLimit={session.scenarios?.time_limit ?? 10}
       initialData={{
         status: session.status,
+        overall_score: session.overall_score,
         confidence_score: session.confidence_score,
         objection_handling_score: session.objection_handling_score,
         active_listening_score: session.active_listening_score,
         qualification_score: session.qualification_score,
         desired_outcome_achieved: session.desired_outcome_achieved,
         overall_result: session.overall_result,
+        strengths: session.strengths,
+        weaknesses: session.weaknesses,
+        coaching_feedback: session.coaching_feedback,
       }}
     />
   );
