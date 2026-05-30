@@ -133,6 +133,8 @@ export function ManagerEmployeePerformance({ employee, progress, readiness, assi
       <ManagerSessionReview
         items={sessionHistory}
         summaries={sessionSummaries}
+        sessions={sessions}
+        employee={employee}
       />
     </div>
   );
