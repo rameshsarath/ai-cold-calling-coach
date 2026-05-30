@@ -40,6 +40,7 @@ export async function getMyCompletedSessions(employeeId?: string) {
     .select("*, scenarios(title, prospect_name, prospect_role, prospect_personality)")
     .eq("employee_id", id)
     .eq("status", "completed")
+    .eq("is_test", false)
     .order("ended_at", { ascending: false });
 
   return data ?? [];
@@ -63,6 +64,7 @@ export async function getEmployeeSessions(employeeId: string) {
     .select("*, scenarios(title, prospect_name, prospect_role, prospect_personality)")
     .eq("employee_id", employeeId)
     .eq("company_id", companyId)
+    .eq("is_test", false)
     .order("ended_at", { ascending: false });
 
   return data ?? [];
@@ -86,6 +88,7 @@ export async function getAllSessions(employeeId: string) {
     .select("*, scenarios(title)")
     .eq("employee_id", employeeId)
     .eq("company_id", companyId)
+    .eq("is_test", false)
     .order("created_at", { ascending: false });
 
   return data ?? [];

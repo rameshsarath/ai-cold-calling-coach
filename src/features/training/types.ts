@@ -27,6 +27,7 @@ export type TrainingSession = {
   strengths: string | null;
   weaknesses: string | null;
   coaching_feedback: string | null;
+  is_test: boolean;
   created_at: string;
   updated_at: string;
 };

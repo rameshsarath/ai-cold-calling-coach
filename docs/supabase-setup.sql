@@ -202,6 +202,7 @@ CREATE TABLE training_sessions (
   strengths TEXT,
   weaknesses TEXT,
   coaching_feedback TEXT,
+  is_test BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -257,4 +258,5 @@ ALTER TABLE training_sessions
   ADD COLUMN IF NOT EXISTS overall_score INT,
   ADD COLUMN IF NOT EXISTS strengths TEXT,
   ADD COLUMN IF NOT EXISTS weaknesses TEXT,
-  ADD COLUMN IF NOT EXISTS coaching_feedback TEXT;
+  ADD COLUMN IF NOT EXISTS coaching_feedback TEXT,
+  ADD COLUMN IF NOT EXISTS is_test BOOLEAN DEFAULT FALSE;
