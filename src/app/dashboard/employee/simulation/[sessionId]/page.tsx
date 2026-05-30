@@ -33,7 +33,6 @@ export default async function SimulationPage({ params }: Props) {
     <SimulationClient
       sessionId={sessionId}
       scenarioTitle={session.scenarios?.title ?? "Scenario"}
-      scenarioTimeLimit={session.scenarios?.time_limit ?? 10}
       initialData={{
         status: session.status,
         overall_score: session.overall_score,

@@ -12,6 +12,42 @@ function randomScore(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+export async function startTestSession(scenarioId: string) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { sessionId: null, error: "No active session." };
+  }
+
+  const companyId = user?.user_metadata?.company_id as string | undefined;
+  if (!companyId) {
+    return { sessionId: null, error: "No company found." };
+  }
+
+  const { data, error } = await supabase
+    .from("training_sessions")
+    .insert({
+      employee_id: user.id,
+      scenario_id: scenarioId,
+      company_id: companyId,
+      started_at: new Date().toISOString(),
+      status: "active",
+      is_test: true,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    return { sessionId: null, error: error.message };
+  }
+
+  return { sessionId: data.id };
+}
+
 export async function startSession(scenarioId: string) {
   const supabase = await createClient();
 

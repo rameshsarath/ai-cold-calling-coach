@@ -1,6 +1,6 @@
 import { getScenarioById } from "@/features/scenarios/queries";
-import { SimulationClient } from "@/components/SimulationClient";
 import { notFound } from "next/navigation";
+import { TestPageClient } from "./TestPageClient";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -60,25 +60,7 @@ export default async function ManagerScenarioTestPage({ params }: Props) {
         </div>
       </div>
 
-      <SimulationClient
-        sessionId="sandbox"
-        scenarioTitle={scenario.title}
-        scenarioTimeLimit={scenario.time_limit ?? 10}
-        initialData={{
-          status: "active",
-          overall_score: null,
-          confidence_score: null,
-          objection_handling_score: null,
-          active_listening_score: null,
-          qualification_score: null,
-          desired_outcome_achieved: null,
-          overall_result: null,
-          strengths: null,
-          weaknesses: null,
-          coaching_feedback: null,
-        }}
-        sandbox
-      />
+      <TestPageClient scenarioId={scenario.id} scenarioTitle={scenario.title} />
     </div>
   );
 }

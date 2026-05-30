@@ -5,10 +5,6 @@ import { useRouter } from "next/navigation";
 import { endSession } from "@/features/training/actions";
 import { createRetellCall } from "@/features/training/retell-actions";
 
-function randomScore(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 type EvalData = {
   status: string;
   overall_score: number | null;
@@ -26,9 +22,8 @@ type EvalData = {
 type Props = {
   sessionId: string;
   scenarioTitle: string;
-  scenarioTimeLimit: number;
   initialData: EvalData;
-  sandbox?: boolean;
+  backHref?: string;
 };
 
 type Phase = "active" | "evaluation" | "error";
@@ -41,12 +36,11 @@ type RetellPhase =
   | "ended"
   | "error";
 
-export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, initialData, sandbox }: Props) {
+export function SimulationClient({ sessionId, scenarioTitle, initialData, backHref }: Props) {
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>(
     initialData.status === "completed" ? "evaluation" : "active"
   );
-  const [elapsed, setElapsed] = useState(0);
   const [evaluation, setEvaluation] = useState(initialData);
   const [ending, setEnding] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -67,31 +61,6 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
         // ignore cleanup errors
       }
       retellClientRef.current = null;
-    }
-
-    if (sandbox) {
-      const confidenceScore = randomScore(50, 100);
-      const objectionHandlingScore = randomScore(40, 95);
-      const activeListeningScore = randomScore(55, 100);
-      const qualificationScore = randomScore(45, 90);
-      const desiredOutcomeAchieved = Math.random() > 0.35;
-      const overallResult = desiredOutcomeAchieved ? "passed" : "failed";
-
-      setEvaluation({
-        status: "completed",
-        overall_score: null,
-        confidence_score: confidenceScore,
-        objection_handling_score: objectionHandlingScore,
-        active_listening_score: activeListeningScore,
-        qualification_score: qualificationScore,
-        desired_outcome_achieved: desiredOutcomeAchieved,
-        overall_result: overallResult,
-        strengths: null,
-        weaknesses: null,
-        coaching_feedback: null,
-      });
-      setPhase("evaluation");
-      return;
     }
 
     try {
@@ -119,10 +88,10 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
       setErrorMessage(e instanceof Error ? e.message : "An unexpected error occurred.");
       setEnding(false);
     }
-  }, [sessionId, sandbox]);
+  }, [sessionId]);
 
   useEffect(() => {
-    if (sandbox || phase !== "active") return;
+    if (phase !== "active") return;
 
     let active = true;
 
@@ -181,90 +150,9 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
         retellClientRef.current = null;
       }
     };
-  }, [sessionId, sandbox, phase]);
-
-  useEffect(() => {
-    if (phase !== "active" || !sandbox) return;
-    const interval = setInterval(() => setElapsed((t) => t + 1), 1000);
-    return () => clearInterval(interval);
-  }, [phase, sandbox]);
-
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
-  };
-
-  function ScoreBar({ label, score }: { label: string; score: number | null }) {
-    const pct = score !== null ? score : 0;
-    const color =
-      pct >= 70 ? "bg-green-500" : pct >= 50 ? "bg-yellow-500" : "bg-red-500";
-    return (
-      <div>
-        <div className="flex justify-between text-sm mb-1">
-          <span className="text-gray-700">{label}</span>
-          <span className="font-semibold">{score !== null ? `${score}/100` : "—"}</span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className={`${color} h-2 rounded-full transition-all`}
-            style={{ width: `${pct}%` }}
-          />
-        </div>
-      </div>
-    );
-  }
+  }, [sessionId, phase, handleEnd]);
 
   if (phase === "active") {
-    if (sandbox) {
-      const remaining = scenarioTimeLimit * 60 - elapsed;
-
-      return (
-        <div className="max-w-xl mx-auto text-center">
-          <span className="inline-block rounded px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-700 mb-4">
-            Scenario Test Mode
-          </span>
-
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold mb-2">Active Simulation</h1>
-            <p className="text-gray-500">{scenarioTitle}</p>
-          </div>
-
-          <div className="text-6xl font-mono font-bold mb-8 tabular-nums">
-            {remaining > 0 ? formatTime(remaining) : "00:00"}
-          </div>
-
-          <div className="border rounded p-8 bg-white mb-8">
-            <p className="text-gray-400 text-sm mb-4">Simulation in progress...</p>
-            <p className="text-gray-500 text-sm">
-              This is a simulated cold calling session.
-              <br />
-              Click &quot;End Simulation&quot; when you are finished.
-            </p>
-          </div>
-
-          <div className="w-full bg-gray-200 rounded-full h-2 mb-8">
-            <div
-              className="bg-blue-600 h-2 rounded-full transition-all"
-              style={{ width: `${Math.max(0, (remaining / (scenarioTimeLimit * 60)) * 100)}%` }}
-            />
-          </div>
-
-          {errorMessage && (
-            <p className="text-sm text-red-600 mb-4">{errorMessage}</p>
-          )}
-
-          <button
-            onClick={handleEnd}
-            disabled={ending}
-            className="bg-red-600 text-white rounded px-8 py-3 text-sm font-medium hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {ending ? "Ending..." : "End Test"}
-          </button>
-        </div>
-      );
-    }
-
     return (
       <div className="max-w-xl mx-auto text-center">
         <div className="mb-8">
@@ -327,19 +215,6 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
             </div>
           )}
 
-          {retellPhase === "idle" && (
-            <div className="space-y-4">
-              <div className="flex justify-center">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <p className="text-gray-500 text-sm">Initializing...</p>
-            </div>
-          )}
-
           {retellPhase === "ended" && (
             <div className="space-y-4">
               <div className="flex justify-center">
@@ -350,6 +225,19 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
                 </div>
               </div>
               <p className="text-gray-500 text-sm">Call ended</p>
+            </div>
+          )}
+
+          {retellPhase === "idle" && (
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              <p className="text-gray-500 text-sm">Initializing...</p>
             </div>
           )}
         </div>
@@ -371,14 +259,6 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
 
   return (
     <div className="max-w-2xl mx-auto">
-      {sandbox && (
-        <div className="text-center mb-6">
-          <span className="inline-block rounded px-3 py-1 text-xs font-medium bg-yellow-100 text-yellow-700">
-            Scenario Test Mode
-          </span>
-        </div>
-      )}
-
       <h1 className="text-2xl font-bold mb-2 text-center">Simulation Complete</h1>
       <p className="text-gray-500 text-center mb-8">{scenarioTitle}</p>
 
@@ -464,11 +344,31 @@ export function SimulationClient({ sessionId, scenarioTitle, scenarioTimeLimit, 
 
       <div className="text-center">
         <button
-          onClick={() => router.push(sandbox ? "/dashboard/manager/scenarios" : "/dashboard/employee")}
+          onClick={() => router.push(backHref ?? "/dashboard/employee")}
           className="bg-blue-600 text-white rounded px-6 py-3 text-sm font-medium hover:bg-blue-700"
         >
-          Back to {sandbox ? "Scenarios" : "Dashboard"}
+          Back to Dashboard
         </button>
+      </div>
+    </div>
+  );
+}
+
+function ScoreBar({ label, score }: { label: string; score: number | null }) {
+  const pct = score !== null ? score : 0;
+  const color =
+    pct >= 70 ? "bg-green-500" : pct >= 50 ? "bg-yellow-500" : "bg-red-500";
+  return (
+    <div>
+      <div className="flex justify-between text-sm mb-1">
+        <span className="text-gray-700">{label}</span>
+        <span className="font-semibold">{score !== null ? `${score}/100` : "—"}</span>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-2">
+        <div
+          className={`${color} h-2 rounded-full transition-all`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );
